@@ -1,4 +1,8 @@
-def plot_binned_mutations(df, target_column, title, n_bins = 10):
+import matplotlib.pyplot as plt
+import os
+
+
+def plot_binned_mutations(df, target_column, title, n_bins = 10, write=False, path=None, filetype="pdf"):
     exons = df[df["type"] == "E"]
     junction = df[df["type"] == "J"]
 
@@ -22,3 +26,7 @@ def plot_binned_mutations(df, target_column, title, n_bins = 10):
 
     fig.suptitle(title)
 
+    if write:
+        fig.savefig(os.path.join(path, "distribution_mutated_features", filetype))
+
+    return fig, ax

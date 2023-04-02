@@ -1,4 +1,20 @@
-def write_tables(dataframe, filename_prepend):
+import pandas as pd
+
+
+def write_tables(dataframe, dfs, filename_prepend, path, ends=None, n=None):
+    """
+    This function writes dataframes to csv files. 
+
+    Args:
+
+    dataframe (pandas.DataFrame) : A stacked features dataframe
+    dfs (mafWrapper) ; A mafwarpper instanace
+    filename_prepend (str) : string that is put before .csv in the filename.
+    path (str) : 
+    ends (str) : None, head or tail. Choose of only part of the dataframe should be written to file.
+    n (int) : Only used of ends is set. Choose n tail or n head entries.
+    
+    """
     dataframe = dataframe.copy()
 
     maf_df = dfs.get_df()
@@ -21,19 +37,21 @@ def write_tables(dataframe, filename_prepend):
         if i in dataframe.columns:
             dataframe.drop(columns=[i])
 
-    (dataframe[dataframe["type"] == "E"].head(50)).to_csv(f"{filename_prepend}_50_highest_score_exon.csv", sep=";")
-    (dataframe[dataframe["type"] == "E"].tail(50)).to_csv(f"{filename_prepend}_50_lowest_score_exon.csv", sep=";")
-
-    (dataframe[dataframe["type"] == "J"].head(50)).to_csv(f"{filename_prepend}_50_highest_score_junction.csv", sep=";")
-    (dataframe[dataframe["type"] == "J"].tail(50)).to_csv(f"{filename_prepend}_50_lowest_junction.csv", sep=";")
 
 
+    match ends:
+        case "tail":
+            (dataframe[dataframe["type"] == "E"].tail(n)).to_csv(f"{filename_prepend}_exon_tail_{n}.csv", sep=";")
+            (dataframe[dataframe["type"] == "J"].tail(n)).to_csv(f"{filename_prepend}_junction_tail_{n}.csv", sep=";")
 
-    (dataframe[(dataframe["type"] == "E") & (dataframe["is_related_mutated"])].head(50)).to_csv(f"{filename_prepend}_50_highest_score_exon_m_mut.csv", sep=";")
-    (dataframe[(dataframe["type"] == "E") & (dataframe["is_related_mutated"])].tail(50)).to_csv(f"{filename_prepend}_50_lowest_score_exon_m_mut.csv", sep=";")
+        case "head":
+            (dataframe[dataframe["type"] == "E"].head(50)).to_csv(f"{filename_prepend}_exon_head_{n}.csv", sep=";")
+            (dataframe[dataframe["type"] == "J"].head(50)).to_csv(f"{filename_prepend}_junction_head_{n}.csv", sep=";")
 
-    (dataframe[(dataframe["type"] == "J") & (dataframe["is_related_mutated"])].head(50)).to_csv(f"{filename_prepend}_50_highest_score_junction_m_mut.csv", sep=";")
-    (dataframe[(dataframe["type"] == "J") & (dataframe["is_related_mutated"])].tail(50)).to_csv(f"{filename_prepend}_50_lowest_junction_m_mut.csv", sep=";")
+        case None:
+            (dataframe[dataframe["type"] == "E"]).to_csv(f"{filename_prepend}_exon.csv", sep=";")
+            (dataframe[dataframe["type"] == "J"]).to_csv(f"{filename_prepend}_junction.csv", sep=";")
+
 
 
     return dataframe
