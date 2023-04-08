@@ -1,4 +1,6 @@
-from plotting import plot_binned_mutations
+from plotting.plot_binned_mutations import plot_binned_mutations
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def ravel_dataframe(df, columns_to_flatten, expression_column_name = "expression"):
         """
@@ -14,7 +16,7 @@ def ravel_dataframe(df, columns_to_flatten, expression_column_name = "expression
         return(pd.concat(sub_df))
 
 
-def is_mutated(df):
+def is_mutated(df, dfs):
     """
     Create a columns in a ravel dataframe that indicates if the gene the feature is in have an mutation.
 
@@ -24,7 +26,7 @@ def is_mutated(df):
     df["is_mutated"] = [dfs.is_mutated(row[1]["geneName"], row[1]["sample"]) for row in df.iterrows()]
     df.astype({"is_mutated": bool})
 
-def is_related_mutation(df):
+def is_related_mutation(df, dfs):
     """
     Create a column in a ravel dataframe that indicates if the feature has a mutation in it.
 
@@ -38,7 +40,7 @@ def is_related_mutation(df):
 
 
 
-def find_expressions(df, raw_df, col, show, title1 = "Mutated samples", title2 = "Mutation is close to feature"):
+def find_expressions(df, dfs, raw_df, col, show, title1 = "Mutated samples", title2 = "Mutation is close to feature"):
     df = df.copy()
     df = ravel_dataframe(df, col)
 
@@ -52,8 +54,8 @@ def find_expressions(df, raw_df, col, show, title1 = "Mutated samples", title2 =
     df.sort_values("expression", inplace=True, ascending=False)
     df = df[df["expression"].notna()]
     
-    is_mutated(df)
-    is_related_mutation(df)
+    is_mutated(df, dfs)
+    is_related_mutation(df, dfs)
     if show:
         plot_binned_mutations(df, "is_mutated", title1)
         plt.show()

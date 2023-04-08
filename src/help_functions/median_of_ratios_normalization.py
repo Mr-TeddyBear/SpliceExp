@@ -1,4 +1,4 @@
-
+import numpy as np
 
 
 def median_of_ratios_normalization(exon_junction_df, samples):
@@ -36,6 +36,5 @@ def median_of_ratios_normalization(exon_junction_df, samples):
         norm_df.loc[(norm_df["geneName"] == i) & (norm_df["type"] == "E"), samples] = norm_df.loc[(norm_df["geneName"] == i) & (norm_df["type"] == "E")][samples]/tmp_exon_norm_factor
         norm_df.loc[(norm_df["geneName"] == i) & (norm_df["type"] == "J"), samples] = norm_df.loc[(norm_df["geneName"] == i) & (norm_df["type"] == "J")][samples]/tmp_junction_norm_factor
 
-        break
 
     return norm_df

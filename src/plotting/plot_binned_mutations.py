@@ -27,6 +27,6 @@ def plot_binned_mutations(df, target_column, title, n_bins = 10, write=False, pa
     fig.suptitle(title)
 
     if write:
-        fig.savefig(os.path.join(path, "distribution_mutated_features", filetype))
+        fig.savefig(os.path.join(path, f"distribution_mutated_features.{filetype}"))
 
     return fig, ax

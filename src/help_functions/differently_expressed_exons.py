@@ -1,7 +1,8 @@
-from fold_change import calc_fold_change
+from help_functions.fold_change import calc_fold_change
 
 import pandas as pd
 from scipy.stats import ttest_ind
+import numpy as np
 
 
 def differently_expressed_linked_exons(use_df, dfs):
@@ -9,7 +10,7 @@ def differently_expressed_linked_exons(use_df, dfs):
     Not completed function
     """
     differential_df = pd.DataFrame(
-        columns=["geneID", "start", "end", "sample", "fold_change", "p_value"])
+        columns=["geneName", "start", "end", "sample", "fold_change", "p_value"])
 
     p_values = {}
     fold_change = {}
@@ -53,6 +54,6 @@ def differently_expressed_linked_exons(use_df, dfs):
                                 fold_change[geneID] = [fchg]
 
                             differential_df = pd.concat([differential_df, pd.DataFrame(
-                                {"geneID": row[1]["geneName"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "p_value": t_test.pvalue}, index=[0])])
+                                {"geneName": row[1]["geneName"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "p_value": t_test.pvalue}, index=[0])])
 
     return differential_df
