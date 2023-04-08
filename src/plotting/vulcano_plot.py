@@ -3,13 +3,17 @@ import numpy as np
 
 
 def vulcano_plot(df, x, y, dfs, y_function=lambda x: x, show=False, save=False, filename=None):
+
+    plt.figure()
+
     plt.scatter(x=df[x], y=df[y].apply(lambda x: -np.log10(x)),
                 s=1, label="Not significant")
     muts = dfs.get_df()
     # highlight down- or up- regulated genes
     down = df[(df[x] <= -2) & (df[y] <= 0.01)]
     up = df[(df[x] >= 2) & (df[y] <= 0.01)]
-    print("\n\n\n", df.head(), "\n\n\n")
+    print("\n\n\n", up.head(), "\n\n\n")
+    print("\n\n\n", down.head(), "\n\n\n")
     plt.scatter(x=down[x], y=down[y].apply(
         lambda x: -np.log10(x)), s=3, label="Down-regulated", color="blue")
     plt.scatter(x=up[x], y=up[y].apply(lambda x: -np.log10(x)),
@@ -30,6 +34,7 @@ def vulcano_plot(df, x, y, dfs, y_function=lambda x: x, show=False, save=False, 
     plt.axvline(2, color="grey", linestyle="--")
     plt.axhline(2, color="grey", linestyle="--")
     plt.legend()
+    plt.autoscale()
 
     if save:
         if filename:

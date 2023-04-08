@@ -1,5 +1,6 @@
 import pandas as pd
 import glob
+import os
 
 class mafWrapper:
     def __init__(self, path: str):
@@ -14,10 +15,10 @@ class mafWrapper:
         """
         self.mapMAF = pd.read_csv(path + "/map.txt", sep="    ", header=None, names=["file", "barcode"])
         dfs = {}
-        files = glob.glob(f"{path}/*/*.maf.gz")
+        files = glob.glob(os.path.join(f"{path}","*","*.maf.gz"))
         
         for i in files:
-            bcode = (self.mapMAF.loc[self.mapMAF["file"] == i.split("/")[-1]]["barcode"]).values[0]
+            bcode = (self.mapMAF.loc[self.mapMAF["file"] == os.path.split(i)[-1]]["barcode"]).values[0]
             dfs[bcode] = pd.read_csv(i, delimiter="\t", comment="#")
         
         self.dfs = dfs

@@ -9,7 +9,6 @@ from mafWrapper import mafWrapper
 import pandas as pd
 import numpy as np
 
-from pybiomart import Dataset, Server
 
 import glob
 import os
@@ -42,7 +41,7 @@ parser.add_argument('--features', type=str, nargs=1,
                     help="path to csv file containing all feature counts as produced på SGSeq.")
 parser.add_argument('--sep', default="\t", type=str, nargs=1,
                     help="If a different seperation is used in features csv. Deafult \\t")
-parser.add_argument("--out", default="./", type=str, nargs=1,
+parser.add_argument("--out", default="." + os.path.sep, type=str, nargs=1,
                     help="Path to folder where outputs will be placed. Will create a new folder output at path given.")
 parser.add_argument("--save", default=True, action='store_true',
                     help="Arguemnt to write tables and figures to file. Deafult true. Will overwrite old fiures in outfolder.")
@@ -63,6 +62,8 @@ if not os.path.isdir(args.out[0]):
 
 if not os.path.isdir(os.path.join(args.out, "output")):
     os.makedirs(os.path.join(args.out, "output"))
+
+outpath = os.path.abspath(os.path.join(args.out[0], "output"))
 
 
 if args.save:
@@ -88,7 +89,8 @@ s = df.columns[12:]
 
 
 # Read maf_path and initatie the wrapper for searching mutations in MAFs
-dfs = mafWrapper(args.MAF[0])
+dfs = mafWrapper(os.path.abspath(args.MAF[0]))
+
 
 
 median_ratio_norm = median_of_ratios_normalization(df, s)
@@ -97,13 +99,20 @@ median_sorted = find_expressions(
     df=median_ratio_norm, dfs=dfs, raw_df=df, col=s, show=False)
 
 plot_binned_mutations(median_sorted, "is_related_mutated", "Distribution of samples with mutations, where mutations is close to the exon in question. Left is features with highest expression.",
-                      path=args.out, filetype=args.plot_filetype, write=save)
+                      path=outpath, filetype=args.plot_filetype, write=save)
 
 
 linked_expression = differently_expressed_linked_exons(median_ratio_norm, dfs)
 
 vulcano_plot(linked_expression, x='fold_change', y='p_value', dfs=dfs, save=save,
-             filename=os.path.join(args.out, f"linked_expression_vulcano.{args.plot_filetype}", ))
+             filename=os.path.join(outpath, f"linked_expression_vulcano.{args.plot_filetype}", ))
+
+
+if save:
+    median_ratio_norm.to_csv(os.path.join(outpath, "normalized_counts.csv"))
+    median_sorted.to_csv(os.path.join(outpath, "stacked_normalized_counts.csv"))
+
+
 
 print(os.path.join(
-    args.out, f"linked_expression_vulcano.{args.plot_filetype}"))
+    outpath, f"linked_expression_vulcano.{args.plot_filetype}"))
