@@ -16,12 +16,11 @@ def median_of_ratios_normalization(exon_junction_df, samples):
     """
     ratio_df = exon_junction_df.copy()
     # Calcualte the psedua referance sample value
-    ratio_df["pseudo_reference_sample"] = exon_junction_df[samples].apply(lambda x: np.power(x[x != 0].prod(), 1/len(x[x != 0])), axis=1)
-
+    ratio_df["pseudo_reference_sample"] = exon_junction_df[samples].apply(lambda x: np.power(x[x != 0], 1/len(x[x != 0])).prod(), axis=1)
     #display(ratio_df)
 
     #Calcualte normalisation facotr for rows
-    ratio_df[samples] =ratio_df.apply(lambda x: x[samples]/x["pseudo_reference_sample"], axis=1)
+    ratio_df[samples] = ratio_df.apply(lambda x: x[samples]/x["pseudo_reference_sample"], axis=1)
 
     norm_df = exon_junction_df.copy()
 

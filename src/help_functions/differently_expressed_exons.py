@@ -77,27 +77,23 @@ def differently_expressed_exons(use_df, dfs, samples):
                             if i not in muta_samp]
 
             for row in exons.iterrows():
+                if len(norm_samples) == 0:
+                    break
                 for i in muta_samp:
                     if dfs.is_mutation_close_to_feature(geneID, i, row[1]):
-                        junction_starting_in_exon = junctions[(
-                            row[1]["start"] <= junctions["start"]) & (junctions["start"] <= row[1]["end"])]
-                        for single_junction in junction_starting_in_exon.iterrows():
+                        mut_exons = row[1][muta_samp]
 
-                            mut_exons = pd.concat(
-                                [exons.loc[[row[0]]], exons[(exons["start"] == single_junction[1]["end"])]])
-                            
+                        mean_expression = row[1][samples].mean()
 
-                            mean_expression = row[1][samples].average()
+                        fchg = calc_fold_change(
+                            mut_exons[[i]], row[1][norm_samples])
 
-                            fchg = calc_fold_change(
-                                mut_exons[[i]], mut_exons[norm_samples])
+                        if geneID in fold_change:
+                            fold_change[geneID].append(fchg)
+                        else:
+                            fold_change[geneID] = [fchg]
 
-                            if geneID in fold_change:
-                                fold_change[geneID].append(fchg)
-                            else:
-                                fold_change[geneID] = [fchg]
-
-                            differential_df = pd.concat([differential_df, pd.DataFrame(
-                                {"geneName": row[1]["geneName"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "mean_expression": mean_expression}, index=[0])])
+                        differential_df = pd.concat([differential_df, pd.DataFrame(
+                            {"geneName": row[1]["geneName"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "mean_expression": mean_expression}, index=[0])])
 
     return differential_df

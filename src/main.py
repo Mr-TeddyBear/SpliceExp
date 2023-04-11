@@ -1,8 +1,7 @@
 # Global imports
 import argparse
-from plotting.vulcano_plot import vulcano_plot
-from plotting.plot_binned_mutations import plot_binned_mutations
-from help_functions.differently_expressed_exons import differently_expressed_linked_exons
+from plotting.plotters import vulcano_plot, plot_binned_mutations, ma_plot, plot_gene_heatmap
+from help_functions.differently_expressed_exons import differently_expressed_linked_exons, differently_expressed_exons
 from help_functions.find_expression import find_expressions
 from help_functions.median_of_ratios_normalization import median_of_ratios_normalization
 from mafWrapper import mafWrapper
@@ -71,6 +70,7 @@ if args.save:
 else:
     save = False
 
+show = False
 
 # Read in features from csv
 
@@ -78,6 +78,7 @@ df = pd.read_csv(args.features[0], sep=args.sep[0])
 
 # Drop ending of tumor type, not needed as we dont have multiple samples from same patients
 df.columns = df.columns.str.replace('-01A', '')
+s = df.columns[12:]
 
 # Drop duplicate rows and remove features with unknown gene location.
 df.drop_duplicates(inplace=True)
@@ -85,7 +86,6 @@ df = df[df["geneName"].str.contains("nan") == False]
 df = df[df[df.columns[12:]].sum(axis=1) > 5]
 
 # Save name of all sample, maybe this should be read from a file
-s = df.columns[12:]
 
 
 # Read maf_path and initatie the wrapper for searching mutations in MAFs
@@ -95,24 +95,28 @@ dfs = mafWrapper(os.path.abspath(args.MAF[0]))
 
 median_ratio_norm = median_of_ratios_normalization(df, s)
 median_ratio_norm = median_ratio_norm[median_ratio_norm["geneName"].notna()]
+median_ratio_norm_centerd = median_ratio_norm.copy()
+median_ratio_norm_centerd[s] = median_ratio_norm_centerd[s].sub(median_ratio_norm_centerd[s].mean(axis=1), axis=1)
 median_sorted = find_expressions(
-    df=median_ratio_norm, dfs=dfs, raw_df=df, col=s, show=False)
+    df=median_ratio_norm_centerd, dfs=dfs, raw_df=df, col=s, show=False)
 
 plot_binned_mutations(median_sorted, "is_related_mutated", "Distribution of samples with mutations, where mutations is close to the exon in question. Left is features with highest expression.",
                       path=outpath, filetype=args.plot_filetype, write=save)
 
 
+differently_exons = differently_expressed_exons(median_ratio_norm, dfs, s)
+
 linked_expression = differently_expressed_linked_exons(median_ratio_norm, dfs)
+
+
+ma_plot(differently_exons, "mean_expression", "fold_change", dfs, filename=os.path.join(outpath, f"ma_single_exons.{args.plot_filetype}"), show=show, save=True)
+
 
 vulcano_plot(linked_expression, x='fold_change', y='p_value', dfs=dfs, save=save,
              filename=os.path.join(outpath, f"linked_expression_vulcano.{args.plot_filetype}", ))
 
 
 if save:
-    median_ratio_norm.to_csv(os.path.join(outpath, "normalized_counts.csv"))
-    median_sorted.to_csv(os.path.join(outpath, "stacked_normalized_counts.csv"))
+    median_ratio_norm.to_csv(os.path.join(outpath, "normalized_counts.csv"), sep=";")
+    median_sorted.to_csv(os.path.join(outpath, "stacked_normalized_counts.csv"), sep=";")
 
-
-
-print(os.path.join(
-    outpath, f"linked_expression_vulcano.{args.plot_filetype}"))
