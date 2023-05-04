@@ -133,3 +133,12 @@ class mafWrapper:
                     if feature["start"] - out_of_feature_boundry < s  and  e < out_of_feature_boundry + feature["end"]:
                         return tmp.iloc[[i]]
         return None
+    
+
+    def get_Hugo_symbol(self, entrez_id):
+        tmp = self.get_df()
+        return tmp[tmp["Entrez_Gene_Id"] == int(entrez_id)]["Hugo_Symbol"].unique()
+    
+    def get_entrez_id(self, hugo_symbol):
+        tmp = self.get_df()
+        return tmp[tmp["Hugo_Symbol"] == hugo_symbol]["Entrez_Gene_Id"].unique()

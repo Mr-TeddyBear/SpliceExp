@@ -24,6 +24,13 @@ def plot_binned_mutations(df, target_column, title, n_bins = 10, write=False, pa
 
     print(len(bins), skip)
 
+    labels = ["" for i in range(len(ax[1].get_xticklabels()))]
+    labels[0] = "Up regulated"
+    labels[-1] = "Down regulated"
+
+
+    ax[1].set_xticklabels(labels)
+
     fig.suptitle(title)
 
     if write:

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import os
-
+from adjustText import adjust_text
 
 def vulcano_plot(df, x, y, dfs, y_function=lambda x: x, show=False, save=False, filename=None):
 
@@ -29,7 +29,7 @@ def vulcano_plot(df, x, y, dfs, y_function=lambda x: x, show=False, save=False, 
         texts.append(plt.text(x=r[x], y=-np.log10(r[y]), s=muts[muts["Entrez_Gene_Id"]
                      == int(r["geneName"])]["Hugo_Symbol"].unique()[0]))
 
-    # adjust_text(texts,arrowprops=dict(arrowstyle="-", color='black', lw=0.5))
+    adjust_text(texts)#,arrowprops=dict(arrowstyle="-", color='black', lw=0.5))
     plt.xlabel("log2FC")
     plt.ylabel("-logFDR")
     plt.axvline(-2, color="grey", linestyle="--")
@@ -69,11 +69,11 @@ def ma_plot(df, x, y, dfs, show=False, save=False, filename=None):
         texts.append(plt.text(x=np.log2(r[x]), y=r[y], s=muts[muts["Entrez_Gene_Id"]
                      == int(r["geneName"])]["Hugo_Symbol"].unique()[0]))
 
-    # adjust_text(texts,arrowprops=dict(arrowstyle="-", color='black', lw=0.5))
+    adjust_text(texts)#,arrowprops=dict(arrowstyle="-", color='black', lw=0.5))
     plt.xlabel("Mean normalized expression")
-    plt.ylabel("-logFDR")
+    plt.ylabel("log2FC")
     mean_fdr = df[(df[y] != np.inf) & (df[y]  != -np.inf) & (~df[y].isna())][y].mean()
-    plt.axhline(mean_fdr, color="red", linestyle="--",label=f"Mean {mean_fdr}")
+    plt.axhline(mean_fdr, color="red", linestyle="--",label=f"Mean {mean_fdr:.4f}")
     plt.axhline(2, color="grey", linestyle="--")
     plt.axhline(-2, color="grey", linestyle="--")
     plt.legend()
@@ -84,6 +84,9 @@ def ma_plot(df, x, y, dfs, show=False, save=False, filename=None):
             plt.savefig(filename)
         else:
             plt.savefig(f"vulcano_plot_{filename}.pdf")
+        
+        up.to_csv(os.path.join(os.path.split(filename)[0], "upregulated_genes.csv"), sep=";")
+        down.to_csv(os.path.join(os.path.split(filename)[0], "downregulated_genes.csv"), sep=";")
 
     if show:
         plt.show()
@@ -92,12 +95,12 @@ def ma_plot(df, x, y, dfs, show=False, save=False, filename=None):
 
 
 
-def plot_gene_heatmap(geneName, dataframe, mutations, center=0,show = False, save = False, filename=None):
+def plot_gene_heatmap(geneName_hugo, dataframe, mutations, center=0,show = False, save = False, filename=None):
     """
     Plot the heatmap of expression levels for given gene.
 
     Args:
-        geneName (str): Entrez gene Id
+        geneName_hugo (str): Entrez gene Id
         dataframe (pd.DataFrame): A dataframe containing information about given gene
         mutations (pd.DataFrame): A dataframe containging information about 
                                   mutations for samples.
@@ -106,6 +109,7 @@ def plot_gene_heatmap(geneName, dataframe, mutations, center=0,show = False, sav
         save (bool): If figures should be saved
         filename (str): Figure name, not used if save if False
     """
+    geneName = mutations.get_entrez_id(geneName_hugo)
     data = dataframe.loc[dataframe["geneName"] == str(geneName)]
 
     exons = data[data["type"] == "E"]
@@ -186,7 +190,7 @@ def plot_gene_heatmap(geneName, dataframe, mutations, center=0,show = False, sav
         if filename:
             plt.savefig(filename)
         else:
-            plt.savefig(f"{looking_for}_{gene.symbol}.pdf")
+            plt.savefig(os.path.join(filename, f"{geneName_hugo}_heatmap.pdf"))
 
     if show:
         plt.show()
@@ -203,18 +207,23 @@ def plot_binned_mutations(df, target_column, title, n_bins = 10, write=False, pa
     skip = len(exons[target_column])//n_bins
     bins = [sum(exons[target_column][i:i+skip]) for i in range(0, len(exons[target_column]), skip)]
     ax[0].bar(x = range(len(bins)), height = bins)
-    ax[0].set_title("Exon")
-    ax[0].set_xlim([-1,len(bins)])
+    ax[0].set_title("Exon", y = -0.2)
+    ax[0].set_xlim([-1,len(bins)-1])
 
 
     skip = len(junction[target_column])//n_bins
     bins = [sum(junction[target_column][i:i+skip]) for i in range(0, len(junction[target_column]), skip)]
     ax[1].bar(range(len(bins)), bins)
-    ax[1].set_title("Junction")
-    ax[1].set_xlim([-1,len(bins)])
+    ax[1].set_title("Junction", y=-0.2)
+    ax[1].set_xlim([-1,len(bins)-1])
 
-    print(len(bins), skip)
+    labels = ["" for i in range(len(ax[1].get_xticklabels()))]
+    ax[0].set_xticklabels(labels)
+    labels[1] = "Up regulated"
+    labels[-1] = "Down regulated"
 
+
+    ax[1].set_xticklabels(labels)
     fig.suptitle(title)
 
     if write:

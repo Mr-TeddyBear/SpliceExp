@@ -1,19 +1,21 @@
-
+import matplotlib.pyplot as plt
+import os
 
 def plot_gene_heatmap(geneName, dataframe, mutations, center=0,show = False, save = False, filename=None):
     """
     Plot the heatmap of expression levels for given gene.
 
     Args:
-        geneName (str): Entrez gene Id
+        geneName (str): Hugo Symbol for given to plot
         dataframe (pd.DataFrame): A dataframe containing information about given gene
-        mutations (pd.DataFrame): A dataframe containging information about 
-                                  mutations for samples.
+        mutations (mafWrapper): An instace of the mafWrapper class.
         center (int, str): Middle value for heatmap color scale.
         show (bool): If figures should be shown
         save (bool): If figures should be saved
         filename (str): Figure name, not used if save if False
     """
+    geneName = mutations.get_entrez_id(geneName)
+
     data = dataframe.loc[dataframe["geneName"] == str(geneName)]
 
     exons = data[data["type"] == "E"]
@@ -94,7 +96,7 @@ def plot_gene_heatmap(geneName, dataframe, mutations, center=0,show = False, sav
         if filename:
             plt.savefig(filename)
         else:
-            plt.savefig(f"{looking_for}_{gene.symbol}.pdf")
+            plt.savefig(os.path.join(filename, f"{geneName}_heatmap.pdf"))
 
     if show:
         plt.show()

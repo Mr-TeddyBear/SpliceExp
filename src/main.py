@@ -96,11 +96,11 @@ dfs = mafWrapper(os.path.abspath(args.MAF[0]))
 median_ratio_norm = median_of_ratios_normalization(df, s)
 median_ratio_norm = median_ratio_norm[median_ratio_norm["geneName"].notna()]
 median_ratio_norm_centerd = median_ratio_norm.copy()
-median_ratio_norm_centerd[s] = median_ratio_norm_centerd[s].sub(median_ratio_norm_centerd[s].mean(axis=1), axis=1)
+median_ratio_norm_centerd[s] = median_ratio_norm_centerd[s].apply(lambda x: x-x.mean(), axis=1)
 median_sorted = find_expressions(
     df=median_ratio_norm_centerd, dfs=dfs, raw_df=df, col=s, show=False)
 
-plot_binned_mutations(median_sorted, "is_related_mutated", "Distribution of samples with mutations, where mutations is close to the exon in question. Left is features with highest expression.",
+plot_binned_mutations(median_sorted, "is_related_mutated", "Distribution of samples with mutations",
                       path=outpath, filetype=args.plot_filetype, write=save)
 
 
@@ -119,4 +119,6 @@ vulcano_plot(linked_expression, x='fold_change', y='p_value', dfs=dfs, save=save
 if save:
     median_ratio_norm.to_csv(os.path.join(outpath, "normalized_counts.csv"), sep=";")
     median_sorted.to_csv(os.path.join(outpath, "stacked_normalized_counts.csv"), sep=";")
+    median_ratio_norm_centerd.head(50).to_csv(os.path.join(outpath, "normalized_counts_centerd_top_50.csv"), sep=";")
+    median_ratio_norm_centerd.tail(50).to_csv(os.path.join(outpath, "normalized_counts_centerd_bottom_50.csv"), sep=";")
 

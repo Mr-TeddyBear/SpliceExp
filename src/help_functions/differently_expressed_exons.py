@@ -61,7 +61,7 @@ def differently_expressed_exons(use_df, dfs, samples):
     Not completed function
     """
     differential_df = pd.DataFrame(
-        columns=["geneName", "start", "end", "sample", "fold_change", "mean_expression"])
+        columns=["geneName","Hugo_Symbol", "Seqname","start", "end", "sample", "fold_change", "mean_expression"])
 
     p_values = {}
     fold_change = {}
@@ -94,6 +94,6 @@ def differently_expressed_exons(use_df, dfs, samples):
                             fold_change[geneID] = [fchg]
 
                         differential_df = pd.concat([differential_df, pd.DataFrame(
-                            {"geneName": row[1]["geneName"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "mean_expression": mean_expression}, index=[0])])
+                            {"geneName": row[1]["geneName"],"Hugo_Symbol": dfs.get_Hugo_symbol(row[1]["geneName"]), "Seqname": row[1]["seqnames"], "start": row[1]["start"], "end": row[1]["end"], "sample": i, "fold_change": fchg, "mean_expression": mean_expression}, index=[0])])
 
     return differential_df
