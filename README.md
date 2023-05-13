@@ -3,9 +3,9 @@ SpliceExp is a small colletion of scripts that tries to identify differently exp
 This software is developed using data on prostate adenocarcinoma patients, but could be employed on RNA count data from other cancer patients.
 
 ## Installation
-Clone this repository and create a new Python virtual enviorment.
-This software was developed with Python 3.10, and all dependencies are listed in the `requerments.txt`.
-Install all dependencies using `python -m pip -r requierments.txt`.
+Clone this repository and create a new Python virtual enviorment. \\
+This software was developed with Python 3.10, and all dependencies are listed in the `requerments.txt`. \\
+Install all dependencies using `python -m pip -r requierments.txt`. \\
 
 ## Running
 
