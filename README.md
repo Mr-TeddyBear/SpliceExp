@@ -1,7 +1,10 @@
 # SpliceExp
-SpliceExp is a small colletion of scripts that tries to identify differently expressed exons that have splice region mutations.
-This software is developed using data on prostate adenocarcinoma patients, but could be employed on RNA count data from other cancer patients.
+SpliceExp is a small colletion of scripts that tries to identify differently expressed exons that have splice region mutations. This is done by correlation mutations in splicing regions, with RNAseq data from the same tumor samples.
+This software is developed using data on prostate adenocarcinoma patients, but could be employed on RNA count data for other types of cancer.
 
+
+## Pre-requsites
+This software is ment to use mutation annotation files (MAF), with one for each sample. SGSeq was used to process RNAseq data, create counts for all exons and junctions.
 ## Installation
 Clone this repository and create a new Python virtual enviorment. <br>
 This software was developed with Python 3.10, and all dependencies are listed in the `requerments.txt`. <br>
