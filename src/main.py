@@ -30,7 +30,7 @@ sns.set()
 
 
 parser = argparse.ArgumentParser(
-    prog='SpliceMEAN',
+    prog='SpliceExp',
     description='Expression analyses '
 )
 

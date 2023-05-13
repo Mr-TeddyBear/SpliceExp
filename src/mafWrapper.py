@@ -13,7 +13,7 @@ class mafWrapper:
                           filename. Map file should contain two columns (filename, samplename) and be tab sperated. 
 
         """
-        self.mapMAF = pd.read_csv(path + "/map.txt", sep="    ", header=None, names=["file", "barcode"])
+        self.mapMAF = pd.read_csv(os.path.join(path,"map.txt"), sep="    ", header=None, names=["file", "barcode"])
         dfs = {}
         files = glob.glob(os.path.join(f"{path}","*","*.maf.gz"))
         
@@ -136,9 +136,20 @@ class mafWrapper:
     
 
     def get_Hugo_symbol(self, entrez_id):
+        """
+        Converts Entrez id to Hugo symbol.
+        Args:
+            entrez_id (str): The entrez id for a gene, will only return Hugo symbol for
+                             the gene if it is in the mutations files.
+        """
         tmp = self.get_df()
         return tmp[tmp["Entrez_Gene_Id"] == int(entrez_id)]["Hugo_Symbol"].unique()
     
     def get_entrez_id(self, hugo_symbol):
+        """
+        Converts Hugo symbol to Entrez Id.
+        Args:
+            hugo_symbol (str): Hugo symbol for a gene found in the mutation files.
+        """
         tmp = self.get_df()
         return tmp[tmp["Hugo_Symbol"] == hugo_symbol]["Entrez_Gene_Id"].unique()

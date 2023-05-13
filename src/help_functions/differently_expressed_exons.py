@@ -7,7 +7,8 @@ import numpy as np
 
 def differently_expressed_linked_exons(use_df, dfs):
     """
-    Not completed function
+    Calcualte the P-value if the mutated linked exons differs from non-mutated samples.
+    Also calucalte fold chagne for the same group.
     """
     differential_df = pd.DataFrame(
         columns=["geneName", "start", "end", "sample", "fold_change", "p_value"])

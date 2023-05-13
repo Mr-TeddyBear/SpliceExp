@@ -29,7 +29,7 @@ sns.set()
 
 
 parser = argparse.ArgumentParser(
-    prog='SpliceMEAN',
+    prog='SpliceExp',
     description='Expression analyses '
 )
 
@@ -45,7 +45,10 @@ parser.add_argument("--save", default=True, action='store_true',
                     help="Arguemnt to write tables and figures to file. Deafult true. Will overwrite old fiures in outfolder.")
 parser.add_argument("--plot_filetype", default="pdf", type=str,
                     help="Sets the filetype of exported plots. All formats accepted by matplotlib as accepted.")
-parser.add_argument("--geneID", type=str, help="The gene you want to create the expression heatmap for. Give the Hugo Symbol")
+parser.add_argument("--geneID", default = None, type=str, help="The gene you want to create the expression heatmap for. Give the Hugo Symbol")
+
+parser.add_argument("--sub_selection", nargs = 2, default=None, help="Set a sub slection of exons and junction to be plottet in the heatmap. Values need to be inside the genomic coordiantes for the gene.")
+
 
 args = parser.parse_args()
 
@@ -63,6 +66,11 @@ if not os.path.isdir(os.path.join(args.out, "output")):
     os.makedirs(os.path.join(args.out, "output"))
 
 outpath = os.path.abspath(os.path.join(args.out[0], "output"))
+
+
+sub_range = [0,-1]
+if args.sub_selection:
+    sub_range = [int(i) for i in args.sub_selection]
 
 
 if args.save:
@@ -91,6 +99,17 @@ df = df[df[df.columns[12:]].sum(axis=1) > 5]
 # Read maf_path and initatie the wrapper for searching mutations in MAFs
 dfs = mafWrapper(os.path.abspath(args.MAF[0]))
 
+print(args.geneID)
+median_ratio_norm = median_of_ratios_normalization(df, s)
+median_ratio_norm = median_ratio_norm[median_ratio_norm["geneName"].notna()]
 
+if not args.geneID:
+    while True:
+        geneID = input("Gene: ")
+        if geneID == "exit":
+            break
+        plot_gene_heatmap(geneID, median_ratio_norm, dfs, show = True, save = args.save, filename = outpath, center="mean", sub_selection= sub_range)
 
-plot_gene_heatmap(args.geneID, df, dfs, show = True, save = True, filename = outpath)
+else:
+    plot_gene_heatmap(args.geneID, median_ratio_norm, dfs, show = True, save = args.save, filename = outpath, center="mean", sub_selection= sub_range)
+print(outpath)

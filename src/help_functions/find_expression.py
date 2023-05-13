@@ -41,6 +41,10 @@ def is_related_mutation(df, dfs):
 
 
 def find_expressions(df, dfs, raw_df, col, show, title1 = "Mutated samples", title2 = "Mutation is close to feature"):
+    """
+    Ravles a dataframe and adds information if a sample is mutated and if this mutation is close to the feautre.
+    This functions keep information about each feature and what sample it is from, and stacks all coutns in to one column.
+    """
     df = df.copy()
     df = ravel_dataframe(df, col)
 
